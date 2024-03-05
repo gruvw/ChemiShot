@@ -1,0 +1,6 @@
+name=Tuto
+author=Gruvw
+description=This is a test project for Playdate
+bundleID=com.gruvw.playdate
+version=0.0.1
+buildNumber=1
