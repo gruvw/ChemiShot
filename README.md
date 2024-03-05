@@ -1,3 +1,5 @@
-# epfl-ba6-vg
+# ChemiShot
+
+ChemiShot - Playdate game
 
 EPFL BA6 SHS Video Games / Gamification
