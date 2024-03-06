@@ -1,10 +1,32 @@
 {
-    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-    "workspace.library": [
-        "/home/gruvw/Applications/PlaydateSDK-2.4.0/CoreLibs/"
-    ],
-    "diagnostics.globals": ["playdate", "import"],
-    "runtime.version": "Lua 5.4",
-    "hint.enable": true,
-    "format.enable": true
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+  "workspace.library": [
+    "/home/gruvw/Applications/PlaydateSDK-2.4.0/playdate-luacats/"
+  ],
+  "diagnostics.globals": [
+    "import"
+  ],
+  "runtime.nonstandardSymbol": [
+    "+=",
+    "-=",
+    "*=",
+    "/=",
+    "//=",
+    "%=",
+    "<<=",
+    ">>=",
+    "&=",
+    "|=",
+    "^="
+  ],
+  "diagnostics.severity": {
+    "duplicate-set-field": "Hint"
+  },
+  "format.defaultConfig": {
+    "indent_style": "space",
+    "indent_size": "4"
+  },
+  "runtime.version": "Lua 5.4",
+  "hint.enable": true,
+  "format.enable": true
 }

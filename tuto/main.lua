@@ -5,6 +5,7 @@ local gfx <const> = playdate.graphics
 local posX = 0
 local posY = 0
 
+---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()
   gfx.clear()
   posX = posX + 1
