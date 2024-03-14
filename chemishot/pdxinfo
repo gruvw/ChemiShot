@@ -1,0 +1,6 @@
+name=ChemiShot
+author=gruvw
+description=A game where you learn Physics and Chemistry by launching atoms!
+bundleID=com.gruvw.playdate
+version=0.0.1
+buildNumber=1
