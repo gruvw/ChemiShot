@@ -1,53 +1,37 @@
+import "./launch/line_2d"
+import "./launch/arc_2d"
+
 local gfx = playdate.graphics
 local geom = playdate.geometry
 
 local BASE_ANGLE = 90
-local DASH_LEN = 10
-local MIN_ANGLE = BASE_ANGLE + 80
-local MAX_ANGLE =  BASE_ANGLE + 25
+local MIN_ANGLE = BASE_ANGLE + 25
+local MAX_ANGLE = BASE_ANGLE + 80
+
+local MIN_FORCE = 10
+local MAX_FORCE = 100
+
 local CRANK_FACTOR = 20
+
+local DASH_LEN = 10
 
 local start = geom.vector2D.new(30, 240 - 30)
 local angle = BASE_ANGLE + 45
+local force = MIN_FORCE
 
-Point2D = { x = 0, y = 0 }
+local is_angle = true
 
-function Point2D:new(o)
-  o = o or { x = 0, y = 0 }
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
+local arc = Arc2D:new()
 
-Line2D = { start = Point2D:new({ x = 0, y = 0 }), finish = Point2D:new({ x = 0, y = 0}) }
-
-function Line2D:new(o)
-  o = o or { start = Point2D:new(), finish = Point2D:new() }
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-function Line2D:dist()
-  return math.sqrt((self.start.x - self.finish.x) ^ 2 + (self.start.y - self.finish.y) ^ 2)
-end
-
-function Line2D:reverseDist(dist)
-  local ratio = dist / self:dist()
-  return Point2D:new({
-    x = self.start.x + (self.finish.x - self.start.x) * ratio,
-    y = self.start.y + (self.finish.y - self.start.y) * ratio,
-  })
-end
-
-function Line2D:straightLinePoints(length)
-  local n_seg = self:dist() // length
+-- Dashed line from an object that implementents a total arc distance function `dist` and a function that gets the destination point from a distance on curve to origin, spaced by 'length'
+local function linePoints(object, dist, reverseDist, length)
+  local n_seg = dist(object) // length
   local lines = {}
 
   for seg = 1, n_seg, 2 do
     lines[seg // 2] = Line2D:new({
-      start = self:reverseDist((seg - 1) * length),
-      finish = self:reverseDist(seg * length),
+      start = reverseDist(object, (seg - 1) * length),
+      finish = reverseDist(object, seg * length),
     })
   end
 
@@ -56,20 +40,43 @@ end
 
 function LaunchUpdate()
   gfx.clear()
-
-  local new_angle = angle + playdate.getCrankChange() / CRANK_FACTOR
-  angle = math.max(MAX_ANGLE, math.min(MIN_ANGLE, new_angle))
-
-  local x, y = start:unpack()
-  local adj = - y / math.tan(math.rad(angle))
-
-  local line = Line2D:new({
-    start = Point2D:new({ x = x, y = y }),
-    finish = Point2D:new({ x = x + adj, y = 0 })
-  })
-
   gfx.setLineWidth(2)
-  for _, l in ipairs(line:straightLinePoints(DASH_LEN)) do
-    gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
+
+  if is_angle then
+    -- Select launch angle (dashed line)
+
+    -- Update angle with crank
+    local new_angle = angle + playdate.getCrankChange() / CRANK_FACTOR
+    angle = math.min(MAX_ANGLE, math.max(MIN_ANGLE, new_angle))
+
+    local x, y = start:unpack()
+    local adj = -y / math.tan(math.rad(angle))
+
+    local line = Line2D:new({
+      start = Point2D:new({ x = x, y = y }),
+      finish = Point2D:new({ x = x + adj, y = 0 })
+    })
+
+    for _, l in ipairs(linePoints(line, line.dist, line.reverseDist, DASH_LEN)) do
+      gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
+    end
+
+    -- Confirm angle
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+      is_angle = false
+      arc = Arc2D:new({ direction = line:fromForce(force) })
+    end
+  else
+    -- Select launch force (dashed arc)
+
+    -- Update force with crank
+    local new_force = force + playdate.getCrankChange() / CRANK_FACTOR
+    force = math.min(MAX_FORCE, math.max(MIN_FORCE, new_force))
+
+    print(force)
+
+    arc = arc:fromForce(force)
+
+    gfx.drawLine(arc.direction.start.x, arc.direction.start.y, arc.direction.finish.x, arc.direction.finish.y)
   end
 end
