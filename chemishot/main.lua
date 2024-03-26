@@ -10,7 +10,7 @@ import "./wheel/wheel"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-initWheel()
+InitWheel()
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()
