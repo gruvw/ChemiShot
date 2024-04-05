@@ -8,28 +8,29 @@ local BASE_ANGLE = 90
 local MIN_ANGLE = BASE_ANGLE + 25
 local MAX_ANGLE = BASE_ANGLE + 80
 
-local MIN_FORCE = 10
-local MAX_FORCE = 100
+local MIN_FORCE = 20
+local MAX_FORCE = 60
 
 local CRANK_FACTOR = 20
 
 local DASH_LEN = 10
 
 local start = geom.vector2D.new(30, 240 - 30)
-local angle = BASE_ANGLE + 45
-local force = MIN_FORCE
+local angle = (MAX_ANGLE + MIN_ANGLE) / 2
+local force = (MAX_FORCE + MIN_FORCE) / 2
 
 local is_angle = true
 
 local arc = Arc2D:new()
+local acc = 3;
 
 -- Dashed line from an object that implementents a total arc distance function `dist` and a function that gets the destination point from a distance on curve to origin, spaced by 'length'
 local function linePoints(object, dist, reverseDist, length)
   local n_seg = dist(object) // length
   local lines = {}
 
-  for seg = 1, n_seg, 2 do
-    lines[seg // 2] = Line2D:new({
+  for seg = 1, n_seg + 2, 2 do
+    lines[1 + seg // 2] = Line2D:new({
       start = reverseDist(object, (seg - 1) * length),
       finish = reverseDist(object, seg * length),
     })
@@ -40,7 +41,7 @@ end
 
 function LaunchUpdate()
   gfx.clear()
-  gfx.setLineWidth(2)
+  gfx.setLineWidth(4)
 
   if is_angle then
     -- Select launch angle (dashed line)
@@ -64,7 +65,7 @@ function LaunchUpdate()
     -- Confirm angle
     if playdate.buttonJustPressed(playdate.kButtonA) then
       is_angle = false
-      arc = Arc2D:new({ direction = line:fromForce(force) })
+      arc = Arc2D:new({ direction = line:fromForce(force), acc = acc })
     end
   else
     -- Select launch force (dashed arc)
@@ -73,10 +74,10 @@ function LaunchUpdate()
     local new_force = force + playdate.getCrankChange() / CRANK_FACTOR
     force = math.min(MAX_FORCE, math.max(MIN_FORCE, new_force))
 
-    print(force)
+    arc = arc:withForce(force)
 
-    arc = arc:fromForce(force)
-
-    gfx.drawLine(arc.direction.start.x, arc.direction.start.y, arc.direction.finish.x, arc.direction.finish.y)
+    for _, l in ipairs(linePoints(arc, arc.dist, arc.reverseDist, DASH_LEN)) do
+      gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
+    end
   end
 end
