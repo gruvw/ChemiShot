@@ -19,10 +19,20 @@ local start = geom.vector2D.new(30, 240 - 30)
 local angle = (MAX_ANGLE + MIN_ANGLE) / 2
 local force = (MAX_FORCE + MIN_FORCE) / 2
 
-local is_angle = true
+-- FSM
+local FSM_ANGLE = 0
+local FSM_FORCE = 1
+local FSM_LAUNCH = 2
+local state = FSM_ANGLE
+local next_state = FSM_ANGLE
 
+-- Arc line params
 local arc = Arc2D:new()
 local acc = 3;
+
+-- Launch annimation
+local atom_pos = Point2D:new()
+local launch_t = 0
 
 -- Dashed line from an object that implementents a total arc distance function `dist` and a function that gets the destination point from a distance on curve to origin, spaced by 'length'
 local function linePoints(object, dist, reverseDist, length)
@@ -43,7 +53,7 @@ function LaunchUpdate()
   gfx.clear()
   gfx.setLineWidth(4)
 
-  if is_angle then
+  if state == FSM_ANGLE then
     -- Select launch angle (dashed line)
 
     -- Update angle with crank
@@ -64,10 +74,10 @@ function LaunchUpdate()
 
     -- Confirm angle
     if playdate.buttonJustPressed(playdate.kButtonA) then
-      is_angle = false
+      next_state = FSM_FORCE
       arc = Arc2D:new({ direction = line:fromForce(force), acc = acc })
     end
-  else
+  elseif state == FSM_FORCE then
     -- Select launch force (dashed arc)
 
     -- Update force with crank
@@ -79,5 +89,25 @@ function LaunchUpdate()
     for _, l in ipairs(linePoints(arc, arc.dist, arc.reverseDist, DASH_LEN)) do
       gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
     end
+
+    if playdate.buttonJustPressed(playdate.kButtonA) then
+      next_state = FSM_LAUNCH
+      atom_pos = arc.direction.start
+    end
+  else
+    gfx.setLineWidth(2)
+
+    -- Launch annimation
+    if not (atom_pos.x < playdate.display.getWidth() and atom_pos.y < playdate.display.getHeight() and atom_pos.x > 0 and atom_pos.y > 0) then
+      launch_t = 0
+      next_state = FSM_ANGLE
+    else
+      atom_pos = arc:reverseDist(launch_t)
+      launch_t += 10
+
+      gfx.drawCircleAtPoint(atom_pos.x, atom_pos.y, 3)
+    end
   end
+
+  state = next_state
 end
