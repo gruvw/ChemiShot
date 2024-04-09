@@ -1,4 +1,5 @@
 import "../atoms/atom_sprite"
+import "../atoms/atoms"
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -8,44 +9,29 @@ local CTR <const> = {pd.display.getWidth() / 2, pd.display.getHeight() / 2}
 local wheelRadius <const> = 110
 local lineWidth <const> = 8
 local bubbleSize <const> = 20
--- local bubbleDrawingRadius <const> = 18
 local dstCenter <const> = 80
 
 local lockedImage <const> = gfx.image.new('images/lock.png')
 local selectionImage <const> = gfx.image.new('images/selection.png')
 
-local listAtoms = {
-    {AtomSprite(0, 0, 'H'), false},
-    {AtomSprite(0, 0, 'H'), false},
-    {AtomSprite(0, 0, 'H'), false},
-    {AtomSprite(0, 0, 'H'), true},
-    {AtomSprite(0, 0, 'H'), true}
-    -- {'H', false},
-    -- {'O', false},
-    -- {'C', true},
-    -- {'Na', true},
-    -- {'Cl', false},
-    -- {'U', false}
-}
-local nbAtoms = #listAtoms
+local nbAtoms = #ATOMS
 local nbAtomsAvail = 0
-for _, atom in pairs(listAtoms) do
-    if not atom[2] then
+for _, atom in pairs(ATOMS) do
+    if not atom.locked then
         nbAtomsAvail += 1
-        print(nbAtomsAvail)
     end
 end
 
-local function compare(a, b)
-    if a[2] then
-        return false
-    elseif b[2] then
-        return true
-    else
-        return #a[1] > #b[1]
-    end
-end
-table.sort(listAtoms, compare)
+-- local function compare(a, b)
+--     if a.locked then
+--         return false
+--     elseif b.locked then
+--         return true
+--     else
+--         return #a[1] > #b[1]
+--     end
+-- end
+-- table.sort(ATOMS, compare)
 
 local selectAngle = 0
 local selectionSprite = gfx.sprite.new(selectionImage)
@@ -66,11 +52,11 @@ function InitWheel()
     )
 
     -- Prepare and place images for all atoms in list
-    for i, atom in pairs(listAtoms) do
+    for i, atom in pairs(ATOMS) do
         local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
         local bubbleSprite = gfx.sprite.new(bubbleImage)
-        if not atom[2] then
-            bubbleSprite = atom[1]
+        if not atom.locked then
+            bubbleSprite = atom
             bubbleSprite:setScale(0.8)
         else
             ---@diagnostic disable-next-line: param-type-mismatch
