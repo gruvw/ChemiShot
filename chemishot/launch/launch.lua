@@ -1,8 +1,9 @@
 import "./launch/line_2d"
 import "./launch/arc_2d"
 
-local gfx = playdate.graphics
-local geom = playdate.geometry
+local pd<const> = playdate
+local gfx<const> = pd.graphics
+local geom<const> = pd.geometry
 
 local BASE_ANGLE = 90
 local MIN_ANGLE = BASE_ANGLE + 25
@@ -57,7 +58,7 @@ function LaunchUpdate()
     -- Select launch angle (dashed line)
 
     -- Update angle with crank
-    local new_angle = angle + playdate.getCrankChange() / CRANK_FACTOR
+    local new_angle = angle + pd.getCrankChange() / CRANK_FACTOR
     angle = math.min(MAX_ANGLE, math.max(MIN_ANGLE, new_angle))
 
     local x, y = start:unpack()
@@ -73,7 +74,7 @@ function LaunchUpdate()
     end
 
     -- Confirm angle
-    if playdate.buttonJustPressed(playdate.kButtonA) then
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = FSM_FORCE
       arc = Arc2D:new({ direction = line:fromForce(force), acc = acc })
     end
@@ -81,7 +82,7 @@ function LaunchUpdate()
     -- Select launch force (dashed arc)
 
     -- Update force with crank
-    local new_force = force + playdate.getCrankChange() / CRANK_FACTOR
+    local new_force = force + pd.getCrankChange() / CRANK_FACTOR
     force = math.min(MAX_FORCE, math.max(MIN_FORCE, new_force))
 
     arc = arc:withForce(force)
@@ -90,7 +91,7 @@ function LaunchUpdate()
       gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
     end
 
-    if playdate.buttonJustPressed(playdate.kButtonA) then
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = FSM_LAUNCH
       atom_pos = arc.direction.start
     end
@@ -98,7 +99,7 @@ function LaunchUpdate()
     gfx.setLineWidth(2)
 
     -- Launch annimation
-    if not (atom_pos.x < playdate.display.getWidth() and atom_pos.y < playdate.display.getHeight() and atom_pos.x > 0 and atom_pos.y > 0) then
+    if not (atom_pos.x < pd.display.getWidth() and atom_pos.y < pd.display.getHeight() and atom_pos.x > 0 and atom_pos.y > 0) then
       launch_t = 0
       next_state = FSM_ANGLE
     else

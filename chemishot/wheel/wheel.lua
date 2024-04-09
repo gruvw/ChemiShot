@@ -76,7 +76,7 @@ function InitWheel()
             ---@diagnostic disable-next-line: param-type-mismatch
             bubbleSprite:setImage(lockedImage)
         end
-            
+
         bubbleSprite:moveTo(
             CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * (i-1)),
             CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * (i-1))
@@ -97,4 +97,5 @@ function WheelUpdate()
     local pointX = CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * pos)
     local pointY = CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * pos)
     selectionSprite:moveTo(pointX, pointY)
+    return pos
 end
