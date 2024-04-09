@@ -1,3 +1,5 @@
+import "../atoms/atom_sprite"
+
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
@@ -6,20 +8,34 @@ local CTR <const> = {pd.display.getWidth() / 2, pd.display.getHeight() / 2}
 local wheelRadius <const> = 110
 local lineWidth <const> = 8
 local bubbleSize <const> = 20
-local bubbleDrawingRadius <const> = 18
+-- local bubbleDrawingRadius <const> = 18
 local dstCenter <const> = 80
 
 local lockedImage <const> = gfx.image.new('images/lock.png')
 local selectionImage <const> = gfx.image.new('images/selection.png')
 
 local listAtoms = {
-    {'H', false},
-    {'O', false},
-    {'C', true},
-    {'Na', true},
-    {'Cl', false},
-    {'U', false}
+    {AtomSprite(0, 0, 'H'), false},
+    {AtomSprite(0, 0, 'H'), false},
+    {AtomSprite(0, 0, 'H'), false},
+    {AtomSprite(0, 0, 'H'), true},
+    {AtomSprite(0, 0, 'H'), true}
+    -- {'H', false},
+    -- {'O', false},
+    -- {'C', true},
+    -- {'Na', true},
+    -- {'Cl', false},
+    -- {'U', false}
 }
+local nbAtoms = #listAtoms
+local nbAtomsAvail = 0
+for _, atom in pairs(listAtoms) do
+    if not atom[2] then
+        nbAtomsAvail += 1
+        print(nbAtomsAvail)
+    end
+end
+
 local function compare(a, b)
     if a[2] then
         return false
@@ -54,16 +70,12 @@ function InitWheel()
         local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
         local bubbleSprite = gfx.sprite.new(bubbleImage)
         if not atom[2] then
-            gfx.pushContext(bubbleImage)
-            w, h = gfx.getTextSize(atom[1])
-                gfx.drawText(atom[1], bubbleSize / 2 + w / 2, bubbleSize / 2 + 3)
-                gfx.drawCircleAtPoint(bubbleSize, bubbleSize, bubbleDrawingRadius)
-            gfx.popContext()
+            bubbleSprite = atom[1]
+            bubbleSprite:setScale(0.8)
         else
             ---@diagnostic disable-next-line: param-type-mismatch
             bubbleSprite:setImage(lockedImage)
         end
-        local nbAtoms = #listAtoms
             
         bubbleSprite:moveTo(
             CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * (i-1)),
@@ -75,19 +87,12 @@ end
 
 function WheelUpdate()
     -- Turn the selector and find which atom it is
-    local nbAtoms = #listAtoms
-    local nbAtomsAvailable = 0
-    for _, atom in pairs(listAtoms) do
-        if not atom[2] then
-            nbAtomsAvailable += 1
-        end
-    end
     local change, _ = pd.getCrankChange()
     selectAngle += math.rad(change)
     if selectAngle < 0 then
-        selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvailable - 1.5)
+        selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
     end
-    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvailable)
+    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
     local pos = selectAngle // (2*math.pi / nbAtoms)
     local pointX = CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * pos)
     local pointY = CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * pos)
