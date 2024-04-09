@@ -11,20 +11,21 @@ local LAUNCH = 2
 local state = INIT
 local next_state = state
 
-local selected_atom = 0
+SelectedAtom = 0
 
 function LogicUpdate()
   if state == INIT then
     InitWheel()
     next_state = WHEEL
   elseif state == WHEEL then
-    selected_atom = WheelUpdate()
+    SelectedAtom = WheelUpdate()
     gfx.sprite.update()
     -- Confirm atom selected
     if playdate.buttonJustPressed(playdate.kButtonA) then
       next_state = LAUNCH
       gfx.sprite.removeAll()
       gfx.clear()
+      LaunchInit()
     end
   elseif state == LAUNCH then
     LaunchUpdate()

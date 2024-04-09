@@ -1,4 +1,5 @@
 import "./launch/line_2d"
+import "../atoms/atom_sprite"
 import "./launch/arc_2d"
 
 local pd<const> = playdate
@@ -35,6 +36,12 @@ local acc = 3;
 local atom_pos = Point2D:new()
 local launch_t = 0
 
+local x, y = start:unpack()
+local atom_sprite = AtomSprite(x, y, "H", false)
+
+local canvas = gfx.image.new(pd.display.getWidth(), pd.display.getHeight())
+local canvas_sprite = gfx.sprite.new(canvas)
+
 -- Dashed line from an object that implementents a total arc distance function `dist` and a function that gets the destination point from a distance on curve to origin, spaced by 'length'
 local function linePoints(object, dist, reverseDist, length)
   local n_seg = dist(object) // length
@@ -50,10 +57,22 @@ local function linePoints(object, dist, reverseDist, length)
   return lines
 end
 
+function LaunchInit()
+  atom_sprite:setScale(0.8)
+  atom_sprite:add()
+  atom_sprite:setZIndex(1)
+
+  canvas_sprite:add()
+  canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
+  canvas_sprite:setZIndex(0)
+end
+
 function LaunchUpdate()
   gfx.clear()
   gfx.setLineWidth(4)
 
+  gfx.lockFocus(canvas)
+  gfx.clear()
   if state == FSM_ANGLE then
     -- Select launch angle (dashed line)
 
@@ -99,16 +118,20 @@ function LaunchUpdate()
     gfx.setLineWidth(2)
 
     -- Launch annimation
-    if not (atom_pos.x < pd.display.getWidth() and atom_pos.y < pd.display.getHeight() and atom_pos.x > 0 and atom_pos.y > 0) then
+    local padding = atom_sprite:getSize() / 2
+    if atom_pos.x + padding >= pd.display.getWidth() or atom_pos.y + padding >= pd.display.getHeight() then
       launch_t = 0
       next_state = FSM_ANGLE
     else
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
 
-      gfx.drawCircleAtPoint(atom_pos.x, atom_pos.y, 3)
+      atom_sprite:moveTo(atom_pos.x, atom_pos.y)
     end
   end
+  gfx.unlockFocus()
+
+  gfx.sprite.update()
 
   state = next_state
 end
