@@ -22,17 +22,16 @@ infoWindowSprite:moveTo(200, 120)
 infoWindowSprite:setZIndex(899)
 
 function infoWindowSprite:draw()
-	gfx.pushContext()		
+	gfx.pushContext()
 		gfx.setColor(gfx.kColorWhite)
 		gfx.fillRect(0, 0, 300, 200)
-		
+
 		gfx.setLineWidth(4)
 		gfx.setColor(gfx.kColorBlack)
-		gfx.drawRoundRect(0, 0, 300, 200, 30)
-		
-		--gfx.drawTextInRect(self.currentText, 0, 0, 30, 30)
-		gfx.drawText(infoWindowText, 50, 60)
-	
+		gfx.drawRoundRect(0, 0, 300, 200, 40)
+
+		gfx.drawTextInRect(infoWindowText, 20, 20, 260, 160)
+
 	gfx.popContext()
 end
 
