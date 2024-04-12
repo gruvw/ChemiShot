@@ -21,7 +21,7 @@ function LogicUpdate()
     SelectedAtom = WheelUpdate()
     gfx.sprite.update()
     -- Confirm atom selected
-    if playdate.buttonJustPressed(playdate.kButtonA) then
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = LAUNCH
       gfx.sprite.removeAll()
       gfx.clear()

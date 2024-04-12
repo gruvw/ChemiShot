@@ -14,6 +14,28 @@ local dstCenter <const> = 80
 local lockedImage <const> = gfx.image.new('images/lock.png')
 local selectionImage <const> = gfx.image.new('images/selection.png')
 
+local infoWindowIsDrawn = false
+local infoWindowText = "No atom selected"
+local infoWindowSprite = gfx.sprite.new()
+infoWindowSprite:setSize(300, 200)
+infoWindowSprite:moveTo(200, 120)
+infoWindowSprite:setZIndex(899)
+
+function infoWindowSprite:draw()
+	gfx.pushContext()		
+		gfx.setColor(gfx.kColorWhite)
+		gfx.fillRect(0, 0, 300, 200)
+		
+		gfx.setLineWidth(4)
+		gfx.setColor(gfx.kColorBlack)
+		gfx.drawRoundRect(0, 0, 300, 200, 30)
+		
+		--gfx.drawTextInRect(self.currentText, 0, 0, 30, 30)
+		gfx.drawText(infoWindowText, 50, 60)
+	
+	gfx.popContext()
+end
+
 local nbAtoms = #ATOMS
 local nbAtomsAvail = 0
 for _, atom in pairs(ATOMS) do
@@ -22,17 +44,7 @@ for _, atom in pairs(ATOMS) do
     end
 end
 
--- local function compare(a, b)
---     if a.locked then
---         return false
---     elseif b.locked then
---         return true
---     else
---         return #a[1] > #b[1]
---     end
--- end
--- table.sort(ATOMS, compare)
-
+local pos = 0
 local selectAngle = 0
 local selectionSprite = gfx.sprite.new(selectionImage)
 selectionSprite:setScale(1.5)
@@ -73,15 +85,27 @@ end
 
 function WheelUpdate()
     -- Turn the selector and find which atom it is
-    local change, _ = pd.getCrankChange()
-    selectAngle += math.rad(change)
-    if selectAngle < 0 then
-        selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
+    if not infoWindowIsDrawn then
+        local change, _ = pd.getCrankChange()
+        selectAngle += math.rad(change)
+        if selectAngle < 0 then
+            selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
+        end
+        selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+        pos = selectAngle // (2*math.pi / nbAtoms)
+        infoWindowText = ATOMS[pos + 1].description
+        local pointX = CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * pos)
+        local pointY = CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * pos)
+        selectionSprite:moveTo(pointX, pointY)
     end
-    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
-    local pos = selectAngle // (2*math.pi / nbAtoms)
-    local pointX = CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * pos)
-    local pointY = CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * pos)
-    selectionSprite:moveTo(pointX, pointY)
+    if pd.buttonJustPressed(pd.kButtonB) then
+        if not infoWindowIsDrawn then
+            infoWindowSprite:add()
+            infoWindowIsDrawn = true
+        else
+            infoWindowSprite:remove()
+            infoWindowIsDrawn = false
+        end
+    end
     return pos
 end

@@ -3,7 +3,7 @@ local gfx <const> = pd.graphics
 
 class('AtomSprite').extends(gfx.sprite)
 
-function AtomSprite:init(x, y, name, locked)
+function AtomSprite:init(x, y, name, locked, description)
     local atomImage = gfx.image.new('images/atoms/' .. name)
     self:setImage(atomImage)
     self:moveTo(x, y)
@@ -18,6 +18,7 @@ function AtomSprite:init(x, y, name, locked)
     self.ay = 0
 
     self.locked = locked
+    self.description = description
 end
 
 function AtomSprite:update()
