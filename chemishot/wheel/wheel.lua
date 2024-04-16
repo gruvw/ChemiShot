@@ -5,7 +5,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 -- List of wheel constants
-local CTR <const> = {pd.display.getWidth() / 2, pd.display.getHeight() / 2}
+local CTR <const> = { pd.display.getWidth() / 2, pd.display.getHeight() / 2 }
 local wheelRadius <const> = 110
 local lineWidth <const> = 8
 local bubbleSize <const> = 20
@@ -22,89 +22,90 @@ infoWindowSprite:moveTo(200, 120)
 infoWindowSprite:setZIndex(899)
 
 function infoWindowSprite:draw()
-	gfx.pushContext()
-		gfx.setColor(gfx.kColorWhite)
-		gfx.fillRect(0, 0, 300, 200)
+  gfx.pushContext()
+  gfx.setColor(gfx.kColorWhite)
+  gfx.fillRect(0, 0, 300, 200)
 
-		gfx.setLineWidth(4)
-		gfx.setColor(gfx.kColorBlack)
-		gfx.drawRoundRect(0, 0, 300, 200, 40)
+  gfx.setLineWidth(4)
+  gfx.setColor(gfx.kColorBlack)
+  gfx.drawRoundRect(0, 0, 300, 200, 40)
 
-		gfx.drawTextInRect(infoWindowText, 20, 20, 260, 160)
+  gfx.drawTextInRect(infoWindowText, 20, 20, 260, 160)
 
-	gfx.popContext()
+  gfx.popContext()
 end
 
 local nbAtoms = #ATOMS
 local nbAtomsAvail = 0
 for _, atom in pairs(ATOMS) do
-    if not atom.locked then
-        nbAtomsAvail += 1
-    end
+  if not atom.locked then
+    nbAtomsAvail += 1
+  end
 end
 
 local pos = 0
 local selectAngle = 0
 local selectionSprite = gfx.sprite.new(selectionImage)
-selectionSprite:setScale(1.5)
-selectionSprite:add()
 
 function InitWheel()
-    selectAngle = 0
+  selectionSprite:setScale(1.5)
+  selectionSprite:add()
 
-    -- Set background disk
-    gfx.sprite.setBackgroundDrawingCallback(
-        function (x, y, width, height)
-            gfx.pushContext()
-                gfx.setLineWidth(lineWidth)
-                gfx.drawCircleAtPoint(CTR[1], CTR[2], wheelRadius)
-            gfx.popContext()
-        end
-    )
+  selectAngle = 0
 
-    -- Prepare and place images for all atoms in list
-    for i, atom in pairs(ATOMS) do
-        local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
-        local bubbleSprite = gfx.sprite.new(bubbleImage)
-        if not atom.locked then
-            bubbleSprite = atom
-            bubbleSprite:setScale(0.8)
-        else
-            ---@diagnostic disable-next-line: param-type-mismatch
-            bubbleSprite:setImage(lockedImage)
-        end
-
-        bubbleSprite:moveTo(
-            CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * (i-1)),
-            CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * (i-1))
-        )
-        bubbleSprite:add()
+  -- Set background disk
+  gfx.sprite.setBackgroundDrawingCallback(
+    function(x, y, width, height)
+      gfx.pushContext()
+      gfx.setLineWidth(lineWidth)
+      gfx.drawCircleAtPoint(CTR[1], CTR[2], wheelRadius)
+      gfx.popContext()
     end
+  )
+
+  -- Prepare and place images for all atoms in list
+  for i, atom in pairs(ATOMS) do
+    local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
+    local bubbleSprite = gfx.sprite.new(bubbleImage)
+    if not atom.locked then
+      bubbleSprite = atom
+      bubbleSprite:setScale(0.8)
+    else
+      ---@diagnostic disable-next-line: param-type-mismatch
+      bubbleSprite:setImage(lockedImage)
+    end
+
+    bubbleSprite:moveTo(
+      CTR[1] + dstCenter * math.sin(2 * math.pi / nbAtoms * (i - 1)),
+      CTR[2] - dstCenter * math.cos(2 * math.pi / nbAtoms * (i - 1))
+    )
+    bubbleSprite:add()
+  end
 end
 
 function WheelUpdate()
-    -- Turn the selector and find which atom it is
+  -- Turn the selector and find which atom it is
+  if not infoWindowIsDrawn then
+    local change, _ = pd.getCrankChange()
+    selectAngle += math.rad(change)
+    if selectAngle < 0 then
+      selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
+    end
+    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+    pos = selectAngle // (2 * math.pi / nbAtoms)
+    infoWindowText = ATOMS[pos + 1].description
+    local pointX = CTR[1] + dstCenter * math.sin(2 * math.pi / nbAtoms * pos)
+    local pointY = CTR[2] - dstCenter * math.cos(2 * math.pi / nbAtoms * pos)
+    selectionSprite:moveTo(pointX, pointY)
+  end
+  if pd.buttonJustPressed(pd.kButtonB) then
     if not infoWindowIsDrawn then
-        local change, _ = pd.getCrankChange()
-        selectAngle += math.rad(change)
-        if selectAngle < 0 then
-            selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
-        end
-        selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
-        pos = selectAngle // (2*math.pi / nbAtoms)
-        infoWindowText = ATOMS[pos + 1].description
-        local pointX = CTR[1] + dstCenter * math.sin(2*math.pi / nbAtoms * pos)
-        local pointY = CTR[2] - dstCenter * math.cos(2*math.pi / nbAtoms * pos)
-        selectionSprite:moveTo(pointX, pointY)
+      infoWindowSprite:add()
+      infoWindowIsDrawn = true
+    else
+      infoWindowSprite:remove()
+      infoWindowIsDrawn = false
     end
-    if pd.buttonJustPressed(pd.kButtonB) then
-        if not infoWindowIsDrawn then
-            infoWindowSprite:add()
-            infoWindowIsDrawn = true
-        else
-            infoWindowSprite:remove()
-            infoWindowIsDrawn = false
-        end
-    end
-    return pos
+  end
+  return pos
 end
