@@ -58,6 +58,8 @@ local function linePoints(object, dist, reverseDist, length)
 end
 
 function LaunchInit()
+  atom_sprite = ATOMS[SelectedAtom + 1]
+  atom_sprite:moveTo(x, y)
   atom_sprite:setScale(0.8)
   atom_sprite:add()
   atom_sprite:setZIndex(1)
@@ -80,7 +82,6 @@ function LaunchUpdate()
     local new_angle = angle + pd.getCrankChange() / CRANK_FACTOR
     angle = math.min(MAX_ANGLE, math.max(MIN_ANGLE, new_angle))
 
-    local x, y = start:unpack()
     local adj = -y / math.tan(math.rad(angle))
 
     local line = Line2D:new({
