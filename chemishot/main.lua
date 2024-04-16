@@ -11,5 +11,5 @@ local gfx <const> = pd.graphics
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()
     IntroUpdate()
-    LogicUpdate()
+    -- LogicUpdate()
 end
