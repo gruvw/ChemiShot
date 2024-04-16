@@ -13,6 +13,5 @@ musicplayer:play(0)
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function playdate.update()
-    IntroUpdate()
     LogicUpdate()
 end
