@@ -1,8 +1,10 @@
 import "./launch/line_2d"
+import "../atoms/atom_sprite"
 import "./launch/arc_2d"
 
-local gfx = playdate.graphics
-local geom = playdate.geometry
+local pd<const> = playdate
+local gfx<const> = pd.graphics
+local geom<const> = pd.geometry
 
 local BASE_ANGLE = 90
 local MIN_ANGLE = BASE_ANGLE + 25
@@ -34,6 +36,12 @@ local acc = 3;
 local atom_pos = Point2D:new()
 local launch_t = 0
 
+local x, y = start:unpack()
+local atom_sprite = AtomSprite(x, y, "H", false)
+
+local canvas = gfx.image.new(pd.display.getWidth(), pd.display.getHeight())
+local canvas_sprite = gfx.sprite.new(canvas)
+
 -- Dashed line from an object that implementents a total arc distance function `dist` and a function that gets the destination point from a distance on curve to origin, spaced by 'length'
 local function linePoints(object, dist, reverseDist, length)
   local n_seg = dist(object) // length
@@ -49,18 +57,31 @@ local function linePoints(object, dist, reverseDist, length)
   return lines
 end
 
+function LaunchInit()
+  atom_sprite = ATOMS[SelectedAtom + 1]
+  atom_sprite:moveTo(x, y)
+  atom_sprite:setScale(0.8)
+  atom_sprite:add()
+  atom_sprite:setZIndex(1)
+
+  canvas_sprite:add()
+  canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
+  canvas_sprite:setZIndex(0)
+end
+
 function LaunchUpdate()
   gfx.clear()
   gfx.setLineWidth(4)
 
+  gfx.lockFocus(canvas)
+  gfx.clear()
   if state == FSM_ANGLE then
     -- Select launch angle (dashed line)
 
     -- Update angle with crank
-    local new_angle = angle + playdate.getCrankChange() / CRANK_FACTOR
+    local new_angle = angle + pd.getCrankChange() / CRANK_FACTOR
     angle = math.min(MAX_ANGLE, math.max(MIN_ANGLE, new_angle))
 
-    local x, y = start:unpack()
     local adj = -y / math.tan(math.rad(angle))
 
     local line = Line2D:new({
@@ -73,7 +94,7 @@ function LaunchUpdate()
     end
 
     -- Confirm angle
-    if playdate.buttonJustPressed(playdate.kButtonA) then
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = FSM_FORCE
       arc = Arc2D:new({ direction = line:fromForce(force), acc = acc })
     end
@@ -81,7 +102,7 @@ function LaunchUpdate()
     -- Select launch force (dashed arc)
 
     -- Update force with crank
-    local new_force = force + playdate.getCrankChange() / CRANK_FACTOR
+    local new_force = force + pd.getCrankChange() / CRANK_FACTOR
     force = math.min(MAX_FORCE, math.max(MIN_FORCE, new_force))
 
     arc = arc:withForce(force)
@@ -90,7 +111,7 @@ function LaunchUpdate()
       gfx.drawLine(l.start.x, l.start.y, l.finish.x, l.finish.y)
     end
 
-    if playdate.buttonJustPressed(playdate.kButtonA) then
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = FSM_LAUNCH
       atom_pos = arc.direction.start
     end
@@ -98,16 +119,20 @@ function LaunchUpdate()
     gfx.setLineWidth(2)
 
     -- Launch annimation
-    if not (atom_pos.x < playdate.display.getWidth() and atom_pos.y < playdate.display.getHeight() and atom_pos.x > 0 and atom_pos.y > 0) then
+    local padding = atom_sprite:getSize() / 2
+    if atom_pos.x + padding >= pd.display.getWidth() or atom_pos.y + padding >= pd.display.getHeight() then
       launch_t = 0
       next_state = FSM_ANGLE
     else
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
 
-      gfx.drawCircleAtPoint(atom_pos.x, atom_pos.y, 3)
+      atom_sprite:moveTo(atom_pos.x, atom_pos.y)
     end
   end
+  gfx.unlockFocus()
+
+  gfx.sprite.update()
 
   state = next_state
 end
