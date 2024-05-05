@@ -4,6 +4,8 @@ import "./launch/launch"
 local pd <const> = playdate
 local gfx = pd.graphics
 
+
+
 -- FSM
 local INTRO = 0
 local INIT = 1
@@ -35,9 +37,20 @@ function LogicUpdate()
       LaunchInit()
     end
   elseif state == LAUNCH then
+    local wallImage = gfx.image.new("images/towers/tower1")
+    local wallImage2 = gfx.image.new("images/towers/tower2")
+    wallSprite = gfx.sprite.new(wallImage)
+    wallSprite:setCollideRect(0, 0, wallSprite:getSize())
+    wallSprite:moveTo(300, 200)
+    wallSprite:add()
+    wallSprite2 = gfx.sprite.new(wallImage2)
+    wallSprite2:setCollideRect(0, 0, wallSprite:getSize())
+    wallSprite2:moveTo(200, 200)
+    wallSprite2:add()
     LaunchUpdate()
     -- gfx.drawCircleAtPoint(100, 100, 30)
   end
 
   state = next_state
+  
 end

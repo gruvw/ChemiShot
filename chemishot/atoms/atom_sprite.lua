@@ -26,5 +26,5 @@ function AtomSprite:update()
 end
 
 function AtomSprite:collisionResponse()
-    return "overlap"
+    return "freeze"
 end
