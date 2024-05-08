@@ -11,6 +11,8 @@ local lineWidth <const> = 8
 local bubbleSize <const> = 20
 local dstCenter <const> = 80
 
+local accum = 0
+
 local lockedImage <const> = gfx.image.new('images/lock.png')
 local selectionImage <const> = gfx.image.new('images/selection.png')
 
@@ -89,9 +91,17 @@ function WheelUpdate()
     local change, _ = pd.getCrankChange()
     selectAngle += math.rad(change)
     if selectAngle < 0 then
-      selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
+      selectAngle = 0
+      accum += math.rad(change)
+      if accum < -math.pi / nbAtoms * pos then
+        selectAngle = 2*math.pi / nbAtoms * nbAtomsAvail - math.pi / nbAtoms / 2
+        accum = 0
+      end
     end
-    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+    if accum == 0 then
+        selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+    end
+    print(selectAngle)
     pos = selectAngle // (2 * math.pi / nbAtoms)
     infoWindowText = ATOMS[pos + 1].description
     local pointX = CTR[1] + dstCenter * math.sin(2 * math.pi / nbAtoms * pos)
