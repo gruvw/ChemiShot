@@ -6,5 +6,11 @@ ATOMS = {
     ),
     AtomSprite(0, 0, 'O', false,
         "Oxygen is very important for life on earth, and compose more than a fourth of the atmosphere. Humans and animals must breathe oxygen in order to live."
+    ),
+    AtomSprite(0, 0, 'Na', true,
+        "Oxygen is very important for life on earth, and compose more than a fourth of the atmosphere. Humans and animals must breathe oxygen in order to live."
+    ),
+    AtomSprite(0, 0, 'Cl', true,
+        "Chlore is... an atom somewhere in the periodic table."
     )
 }

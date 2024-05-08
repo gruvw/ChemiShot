@@ -37,7 +37,6 @@ local atom_pos = Point2D:new()
 local launch_t = 0
 
 local x, y = start:unpack()
-local atom_sprite = AtomSprite(x, y, "H", false)
 
 local canvas = gfx.image.new(pd.display.getWidth(), pd.display.getHeight())
 local canvas_sprite = gfx.sprite.new(canvas)
@@ -58,11 +57,12 @@ local function linePoints(object, dist, reverseDist, length)
 end
 
 function LaunchInit()
-  atom_sprite = ATOMS[SelectedAtom + 1]
-  atom_sprite:moveTo(x, y)
-  atom_sprite:setScale(0.8)
-  atom_sprite:add()
-  atom_sprite:setZIndex(1)
+  Atom_sprite = ATOMS[SelectedAtom + 1]
+  Atom_sprite:moveTo(x, y)
+  Atom_sprite:setScale(0.8)
+  Atom_sprite:add()
+  Atom_sprite:setZIndex(1)
+  Atom_sprite.collisionResponse = 'freeze'
 
   canvas_sprite:add()
   canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
@@ -119,7 +119,7 @@ function LaunchUpdate()
     gfx.setLineWidth(2)
 
     -- Launch annimation
-    local padding = atom_sprite:getSize() / 2
+    local padding = Atom_sprite:getSize() / 2
     if atom_pos.x + padding >= pd.display.getWidth() or atom_pos.y + padding >= pd.display.getHeight() then
       launch_t = 0
       next_state = FSM_ANGLE
@@ -127,7 +127,7 @@ function LaunchUpdate()
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
 
-      atom_sprite:moveTo(atom_pos.x, atom_pos.y)
+      Atom_sprite:moveWithCollisions(atom_pos.x, atom_pos.y)
     end
   end
   gfx.unlockFocus()

@@ -1,17 +1,19 @@
 import "./wheel/wheel"
 import "./launch/launch"
+import "./towers/towers"
 
 local pd <const> = playdate
 local gfx = pd.graphics
 
+local colPadIn = 3
 
-
+local LVL = 1
 -- FSM
 local INTRO = 0
 local INIT = 1
 local WHEEL = 2
 local LAUNCH = 3
-local state = INTRO
+local state = INIT
 local next_state = state
 
 SelectedAtom = 0
@@ -37,20 +39,19 @@ function LogicUpdate()
       LaunchInit()
     end
   elseif state == LAUNCH then
-    local wallImage = gfx.image.new("images/towers/tower1")
-    local wallImage2 = gfx.image.new("images/towers/tower2")
-    wallSprite = gfx.sprite.new(wallImage)
-    wallSprite:setCollideRect(0, 0, wallSprite:getSize())
-    wallSprite:moveTo(300, 200)
-    wallSprite:add()
-    wallSprite2 = gfx.sprite.new(wallImage2)
-    wallSprite2:setCollideRect(0, 0, wallSprite:getSize())
-    wallSprite2:moveTo(200, 200)
-    wallSprite2:add()
+    Atom_sprite:setCollideRect(colPadIn, colPadIn, Atom_sprite.width - 2*colPadIn, Atom_sprite.height - 2*colPadIn)
+
+    for y_index, floor in pairs(TOWERS[LVL]) do
+        for x_index, atom in pairs(floor) do
+            atom:setScale(0.8) -- TODO fix this
+            atom:moveTo(350 -  x_index * atom.width, pd.display.getHeight() - y_index * atom.height / 2)
+            atom:setCollideRect(colPadIn, colPadIn, atom.width - 2*colPadIn, atom.height - 2*colPadIn)
+            atom:add()
+        end
+    end
+
     LaunchUpdate()
     -- gfx.drawCircleAtPoint(100, 100, 30)
   end
-
   state = next_state
-  
 end
