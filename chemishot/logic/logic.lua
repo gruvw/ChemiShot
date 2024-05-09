@@ -61,6 +61,7 @@ function LogicUpdate()
     local launchEnded = LaunchUpdate()
     if launchEnded == true then
       TOWER[#TOWER + 1] = Atom_sprite:copy()
+      handleCollisions()
       launchEnded = false
       next_state = WAIT
     end
@@ -80,4 +81,16 @@ function drawTower()
     atom:setCollideRect(colPadIn, colPadIn, atom.width - 2*colPadIn, atom.height - 2*colPadIn)
     atom:add()
   end
+end
+
+function handleCollisions()
+  -- local w = Atom_sprite.width
+  -- local h = Atom_sprite.height
+  -- local neighbors = gfx.sprite.querySpritesInRect(Atom_sprite.x - w / 2, Atom_sprite.y - h / 2, w, h)
+  local neighbors = Atom_sprite:overlappingSprites()
+  for i = 1, #neighbors do
+    local atom = neighbors[i]
+    print(atom.name)
+  end
+
 end

@@ -134,9 +134,6 @@ function LaunchUpdate()
 
       local _, _, collisions, collisionsLen = Atom_sprite:moveWithCollisions(atom_pos.x, atom_pos.y)
       if collisionsLen > 0 then
-        for i, collision in pairs(collisions) do
-          print('Treating collisions')
-        end
         next_state = FSM_DONE
       end
 

@@ -9,6 +9,7 @@ function AtomSprite:init(x, y, name, locked, description)
     self:moveTo(x, y)
     self.x = x
     self.y = y
+    self.name = name
 
     self:setCollideRect(0, 0, self:getSize())
 
