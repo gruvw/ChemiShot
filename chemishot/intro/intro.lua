@@ -76,7 +76,6 @@ function IntroUpdate()
     if currentScene ~= startScreen then
       transition()
     else
-      print("true")
       return true
     end
   end

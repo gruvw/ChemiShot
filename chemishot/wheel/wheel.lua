@@ -70,7 +70,7 @@ function InitWheel()
     local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
     local bubbleSprite = gfx.sprite.new(bubbleImage)
     if not atom.locked then
-      bubbleSprite = atom
+      bubbleSprite = atom:copy()
       bubbleSprite:setScale(0.8)
     else
       ---@diagnostic disable-next-line: param-type-mismatch
@@ -101,7 +101,6 @@ function WheelUpdate()
     if accum == 0 then
         selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
     end
-    print(selectAngle)
     pos = selectAngle // (2 * math.pi / nbAtoms)
     infoWindowText = ATOMS[pos + 1].description
     local pointX = CTR[1] + dstCenter * math.sin(2 * math.pi / nbAtoms * pos)

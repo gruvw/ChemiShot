@@ -5,15 +5,18 @@ import "./towers/towers"
 local pd <const> = playdate
 local gfx = pd.graphics
 
-local colPadIn = 3
+local colPadIn = 2
 
 local LVL = 1
+local TOWER = TOWERS[LVL]
 -- FSM
 local INTRO = 0
 local INIT = 1
-local WHEEL = 2
-local LAUNCH = 3
-local state = INIT
+local SHOW = 2
+local WHEEL = 3
+local LAUNCH = 4
+local WAIT = 5
+local state = SHOW
 local next_state = state
 
 SelectedAtom = 0
@@ -23,9 +26,21 @@ function LogicUpdate()
     if IntroUpdate() then
       gfx.sprite.removeAll()
       gfx.clear()
+      next_state = SHOW
+    end
+  elseif state == SHOW then
+    gfx.sprite.removeAll()
+    gfx.clear()
+    drawTower()
+
+    gfx.sprite.update()
+    gfx.drawText('Destroy this tower!', 50, 50)
+    if pd.buttonJustPressed(pd.kButtonA) then
       next_state = INIT
     end
   elseif state == INIT then
+    gfx.sprite.removeAll()
+    gfx.clear()
     InitWheel()
     next_state = WHEEL
   elseif state == WHEEL then
@@ -41,17 +56,28 @@ function LogicUpdate()
   elseif state == LAUNCH then
     Atom_sprite:setCollideRect(colPadIn, colPadIn, Atom_sprite.width - 2*colPadIn, Atom_sprite.height - 2*colPadIn)
 
-    for y_index, floor in pairs(TOWERS[LVL]) do
-        for x_index, atom in pairs(floor) do
-            atom:setScale(0.8) -- TODO fix this
-            atom:moveTo(350 -  x_index * atom.width, pd.display.getHeight() - y_index * atom.height / 2)
-            atom:setCollideRect(colPadIn, colPadIn, atom.width - 2*colPadIn, atom.height - 2*colPadIn)
-            atom:add()
-        end
-    end
+    drawTower()
 
-    LaunchUpdate()
-    -- gfx.drawCircleAtPoint(100, 100, 30)
+    local launchEnded = LaunchUpdate()
+    if launchEnded == true then
+      TOWER[#TOWER + 1] = Atom_sprite:copy()
+      launchEnded = false
+      next_state = WAIT
+    end
+  elseif state == WAIT then
+    drawTower()
+    gfx.sprite.update()
+    pd.wait(500)
+    next_state = INIT
   end
+
   state = next_state
+end
+
+function drawTower()
+  for i, atom in pairs(TOWER) do
+    atom:setScale(0.8) -- TODO fix this
+    atom:setCollideRect(colPadIn, colPadIn, atom.width - 2*colPadIn, atom.height - 2*colPadIn)
+    atom:add()
+  end
 end

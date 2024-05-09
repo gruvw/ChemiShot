@@ -25,6 +25,7 @@ local force = (MAX_FORCE + MIN_FORCE) / 2
 local FSM_ANGLE = 0
 local FSM_FORCE = 1
 local FSM_LAUNCH = 2
+local FSM_DONE = 3
 local state = FSM_ANGLE
 local next_state = FSM_ANGLE
 
@@ -57,7 +58,7 @@ local function linePoints(object, dist, reverseDist, length)
 end
 
 function LaunchInit()
-  Atom_sprite = ATOMS[SelectedAtom + 1]
+  Atom_sprite = ATOMS[SelectedAtom + 1]:copy()
   Atom_sprite:moveTo(x, y)
   Atom_sprite:setScale(0.8)
   Atom_sprite:add()
@@ -67,6 +68,8 @@ function LaunchInit()
   canvas_sprite:add()
   canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
   canvas_sprite:setZIndex(0)
+
+  launch_t = 0
 end
 
 function LaunchUpdate()
@@ -115,24 +118,38 @@ function LaunchUpdate()
       next_state = FSM_LAUNCH
       atom_pos = arc.direction.start
     end
-  else
+  elseif state == FSM_LAUNCH then
     gfx.setLineWidth(2)
 
-    -- Launch annimation
+    -- Launch animation
     local padding = Atom_sprite:getSize() / 2
     if atom_pos.x + padding >= pd.display.getWidth() or atom_pos.y + padding >= pd.display.getHeight() then
       launch_t = 0
+      Atom_sprite:remove()
+      LaunchInit()
       next_state = FSM_ANGLE
     else
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
 
-      Atom_sprite:moveWithCollisions(atom_pos.x, atom_pos.y)
+      local _, _, collisions, collisionsLen = Atom_sprite:moveWithCollisions(atom_pos.x, atom_pos.y)
+      if collisionsLen > 0 then
+        for i, collision in pairs(collisions) do
+          print('Treating collisions')
+        end
+        next_state = FSM_DONE
+      end
+
     end
+  elseif state == FSM_DONE then
+    next_state = FSM_ANGLE
+    state = next_state -- Force changing the state
+    return true
   end
   gfx.unlockFocus()
 
   gfx.sprite.update()
 
   state = next_state
+  return false
 end
