@@ -28,10 +28,11 @@ local FSM_LAUNCH = 2
 local FSM_DONE = 3
 local state = FSM_ANGLE
 local next_state = FSM_ANGLE
+Collided = false
 
 -- Arc line params
 local arc = Arc2D:new()
-local acc = 3;
+local acc = 3
 
 -- Launch annimation
 local atom_pos = Point2D:new()
@@ -63,7 +64,6 @@ function LaunchInit()
   Atom_sprite:setScale(0.8)
   Atom_sprite:add()
   Atom_sprite:setZIndex(1)
-  Atom_sprite.collisionResponse = 'freeze'
 
   canvas_sprite:add()
   canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
@@ -131,22 +131,19 @@ function LaunchUpdate()
     else
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
-
-      local _, _, collisions, collisionsLen = Atom_sprite:moveWithCollisions(atom_pos.x, atom_pos.y)
-      if collisionsLen > 0 then
+      if not Collided then
+        Atom_sprite:moveTo(atom_pos.x, atom_pos.y)
+      else
         next_state = FSM_DONE
       end
-
     end
   elseif state == FSM_DONE then
     next_state = FSM_ANGLE
-    state = next_state -- Force changing the state
-    return true
+    Collided = false
   end
   gfx.unlockFocus()
 
   gfx.sprite.update()
 
   state = next_state
-  return false
 end

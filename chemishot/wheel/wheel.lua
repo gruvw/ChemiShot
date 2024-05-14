@@ -39,11 +39,6 @@ end
 
 local nbAtoms = #ATOMS
 local nbAtomsAvail = 0
-for _, atom in pairs(ATOMS) do
-  if not atom.locked then
-    nbAtomsAvail += 1
-  end
-end
 
 local pos = 0
 local selectAngle = 0
@@ -64,6 +59,13 @@ function InitWheel()
       gfx.popContext()
     end
   )
+
+  nbAtomsAvail = 0
+  for _, atom in pairs(ATOMS) do
+    if not atom.locked then
+      nbAtomsAvail += 1
+    end
+  end
 
   -- Prepare and place images for all atoms in list
   for i, atom in pairs(ATOMS) do

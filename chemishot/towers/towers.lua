@@ -14,7 +14,7 @@ TOWERS = {
     {
         AtomSprite(BASE_X, BASE_Y, 'H'),
         AtomSprite(BASE_X, BASE_Y - ATOM_SIDE, 'H'),
-        AtomSprite(BASE_X - ATOM_SIDE, BASE_Y, 'Na'),
-        AtomSprite(BASE_X - ATOM_SIDE, BASE_Y - ATOM_SIDE, 'Na')
+        AtomSprite(BASE_X - ATOM_SIDE, BASE_Y, 'C'),
+        AtomSprite(BASE_X - ATOM_SIDE, BASE_Y - ATOM_SIDE, 'C')
     }
 }

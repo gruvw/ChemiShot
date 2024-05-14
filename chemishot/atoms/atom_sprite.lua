@@ -11,8 +11,6 @@ function AtomSprite:init(x, y, name, locked, description)
     self.y = y
     self.name = name
 
-    self:setCollideRect(0, 0, self:getSize())
-
     self.vx = 0
     self.vy = 0
     self.ax = 0
@@ -20,12 +18,4 @@ function AtomSprite:init(x, y, name, locked, description)
 
     self.locked = locked
     self.description = description
-end
-
-function AtomSprite:update()
-    self:moveBy(self.vx, self.vy)
-end
-
-function AtomSprite:collisionResponse()
-    return "freeze"
 end
