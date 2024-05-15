@@ -16,7 +16,7 @@ local SHOW = 2
 local WHEEL = 3
 local LAUNCH = 4
 local WAIT = 5
-local state = SHOW
+local state = INIT
 local next_state = state
 
 SelectedAtom = 0
@@ -102,21 +102,23 @@ function HandleCollisions()
   local neighbors = GetNeighbors(Atom_sprite)
   for i = 1, #neighbors do
     local firstAtom = neighbors[i]
-    spritesToRemove[2] = firstAtom
-    moleculeToTest = Atom_sprite.name .. firstAtom.name
-    if CheckAndRemoveMolecule(moleculeToTest, spritesToRemove) then
-      return
-    end
-    -- Take the neighbors of the neighbor (we don't go deeper => molecule of 3 symbols max)
-    local neighborsOfNeighbor = GetNeighbors(neighbors[i])
-    -- Loop over the neighbors of the neighbor, do the same
-    for j=1, #neighborsOfNeighbor do
-      if not SameAtom(Atom_sprite, neighborsOfNeighbor[j]) then
-        local secondAtom = neighborsOfNeighbor[j]
-        spritesToRemove[3] = secondAtom
-        moleculeToTest = Atom_sprite.name .. firstAtom.name .. secondAtom.name
+    if not SameAtom(Atom_sprite, firstAtom) then
+        spritesToRemove[2] = firstAtom
+        moleculeToTest = Atom_sprite.name .. firstAtom.name
         if CheckAndRemoveMolecule(moleculeToTest, spritesToRemove) then
-          return
+        return
+        end
+        -- Take the neighbors of the neighbor (we don't go deeper => molecule of 3 symbols max)
+        local neighborsOfNeighbor = GetNeighbors(neighbors[i])
+        -- Loop over the neighbors of the neighbor, do the same
+        for j=1, #neighborsOfNeighbor do
+        if not SameAtom(Atom_sprite, neighborsOfNeighbor[j]) then
+            local secondAtom = neighborsOfNeighbor[j]
+            spritesToRemove[3] = secondAtom
+            moleculeToTest = Atom_sprite.name .. firstAtom.name .. secondAtom.name
+            if CheckAndRemoveMolecule(moleculeToTest, spritesToRemove) then
+            return
+            end
         end
       end
     end
