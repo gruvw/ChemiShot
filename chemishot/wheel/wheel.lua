@@ -48,8 +48,6 @@ function InitWheel()
   selectionSprite:setScale(1.5)
   selectionSprite:add()
 
-  selectAngle = 0
-
   -- Set background disk
   gfx.sprite.setBackgroundDrawingCallback(
     function(x, y, width, height)

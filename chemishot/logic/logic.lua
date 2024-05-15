@@ -35,8 +35,9 @@ function LogicUpdate()
     DrawTower()
 
     gfx.sprite.update()
-    gfx.drawText('Destroy this tower!', 50, 50)
-    gfx.drawText('Press A once you are ready.', 50,80)
+    gfx.drawText('LEVEL ' .. LVL, 170, 50)
+    gfx.drawText('Destroy this tower !', 50, 80)
+    gfx.drawText('Press A once you are ready.', 50, 110)
     if pd.buttonJustPressed(pd.kButtonA) then
       next_state = INIT
     end
@@ -72,7 +73,7 @@ function LogicUpdate()
     gfx.sprite.update()
     -- Level is done
     if #TOWER == 0 then
-      gfx.drawText('LEVEL DONE!', 50, 50)
+      gfx.drawText('LEVEL ' .. LVL .. ' DONE !', 150, 100)
       ATOMS[3]['locked'] = false
       if LVL == 3 then
         -- GAME IS DONE
