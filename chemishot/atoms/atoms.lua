@@ -11,12 +11,12 @@ ATOMS = {
         "Carbon is a solid. It exists freely as a diamond or graphite, and constitutes coal, limestone and petroleum. It is an important atom for biological life."
     ),
     AtomSprite(0, 0, 'B', true,
-        "Le bore joue un rôle crucial dans la santé osseuse et dans de nombreux autres processus biologiques du corps humain."
+        "Boron plays a crucial role in bone health and many other biological processes in the human body."
     ),
     AtomSprite(0, 0, 'N', true,
-        "Composant majoritaire de l’atmosphère terrestre sous forme de diazote (78 %) avec le dioxygène (21 %), l'azote est présent dans de nombreux composés organiques comme inorganiques."
+        "The main component of the Earth's atmosphere, in the form of nitrogen (78%) along with oxygen (21%), nitrogen is present in many organic and inorganic compounds."
     ),
     AtomSprite(0, 0, 'F', true,
-        "Le fluor est l'un des éléments les plus réactifs connus. En petites quantités, on retrouve des fluorures dans le sel et le dentifrice pour éviter les caries."
+        "Fluoride is one of the most reactive elements known. In small quantities, fluorides are found in salt and toothpaste to prevent cavities."
     )
 }
