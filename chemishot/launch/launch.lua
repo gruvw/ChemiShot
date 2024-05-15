@@ -25,19 +25,20 @@ local force = (MAX_FORCE + MIN_FORCE) / 2
 local FSM_ANGLE = 0
 local FSM_FORCE = 1
 local FSM_LAUNCH = 2
+local FSM_DONE = 3
 local state = FSM_ANGLE
 local next_state = FSM_ANGLE
+Collided = false
 
 -- Arc line params
 local arc = Arc2D:new()
-local acc = 3;
+local acc = 3
 
 -- Launch annimation
 local atom_pos = Point2D:new()
 local launch_t = 0
 
 local x, y = start:unpack()
-local atom_sprite = AtomSprite(x, y, "H", false)
 
 local canvas = gfx.image.new(pd.display.getWidth(), pd.display.getHeight())
 local canvas_sprite = gfx.sprite.new(canvas)
@@ -58,15 +59,17 @@ local function linePoints(object, dist, reverseDist, length)
 end
 
 function LaunchInit()
-  atom_sprite = ATOMS[SelectedAtom + 1]
-  atom_sprite:moveTo(x, y)
-  atom_sprite:setScale(0.8)
-  atom_sprite:add()
-  atom_sprite:setZIndex(1)
+  Atom_sprite = ATOMS[SelectedAtom + 1]:copy()
+  Atom_sprite:moveTo(x, y)
+  Atom_sprite:setScale(0.8)
+  Atom_sprite:add()
+  Atom_sprite:setZIndex(1)
 
   canvas_sprite:add()
   canvas_sprite:moveTo(pd.display.getWidth() / 2, pd.display.getHeight() / 2)
   canvas_sprite:setZIndex(0)
+
+  launch_t = 0
 end
 
 function LaunchUpdate()
@@ -115,20 +118,28 @@ function LaunchUpdate()
       next_state = FSM_LAUNCH
       atom_pos = arc.direction.start
     end
-  else
+  elseif state == FSM_LAUNCH then
     gfx.setLineWidth(2)
 
-    -- Launch annimation
-    local padding = atom_sprite:getSize() / 2
+    -- Launch animation
+    local padding = Atom_sprite:getSize() / 2
     if atom_pos.x + padding >= pd.display.getWidth() or atom_pos.y + padding >= pd.display.getHeight() then
       launch_t = 0
+      Atom_sprite:remove()
+      LaunchInit()
       next_state = FSM_ANGLE
     else
       atom_pos = arc:reverseDist(launch_t)
       launch_t += 10
-
-      atom_sprite:moveTo(atom_pos.x, atom_pos.y)
+      if not Collided then
+        Atom_sprite:moveTo(atom_pos.x, atom_pos.y)
+      else
+        next_state = FSM_DONE
+      end
     end
+  elseif state == FSM_DONE then
+    next_state = FSM_ANGLE
+    Collided = false
   end
   gfx.unlockFocus()
 

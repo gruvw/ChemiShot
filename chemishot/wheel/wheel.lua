@@ -11,6 +11,8 @@ local lineWidth <const> = 8
 local bubbleSize <const> = 20
 local dstCenter <const> = 80
 
+local accum = 0
+
 local lockedImage <const> = gfx.image.new('images/lock.png')
 local selectionImage <const> = gfx.image.new('images/selection.png')
 
@@ -37,11 +39,6 @@ end
 
 local nbAtoms = #ATOMS
 local nbAtomsAvail = 0
-for _, atom in pairs(ATOMS) do
-  if not atom.locked then
-    nbAtomsAvail += 1
-  end
-end
 
 local pos = 0
 local selectAngle = 0
@@ -50,8 +47,6 @@ local selectionSprite = gfx.sprite.new(selectionImage)
 function InitWheel()
   selectionSprite:setScale(1.5)
   selectionSprite:add()
-
-  selectAngle = 0
 
   -- Set background disk
   gfx.sprite.setBackgroundDrawingCallback(
@@ -63,12 +58,19 @@ function InitWheel()
     end
   )
 
+  nbAtomsAvail = 0
+  for _, atom in pairs(ATOMS) do
+    if not atom.locked then
+      nbAtomsAvail += 1
+    end
+  end
+
   -- Prepare and place images for all atoms in list
   for i, atom in pairs(ATOMS) do
     local bubbleImage = gfx.image.new(bubbleSize * 2, bubbleSize * 2)
     local bubbleSprite = gfx.sprite.new(bubbleImage)
     if not atom.locked then
-      bubbleSprite = atom
+      bubbleSprite = atom:copy()
       bubbleSprite:setScale(0.8)
     else
       ---@diagnostic disable-next-line: param-type-mismatch
@@ -89,9 +91,16 @@ function WheelUpdate()
     local change, _ = pd.getCrankChange()
     selectAngle += math.rad(change)
     if selectAngle < 0 then
-      selectAngle = 2 * math.pi - 2 * math.pi / nbAtoms * (nbAtomsAvail - nbAtomsAvail / nbAtoms)
+      selectAngle = 0
+      accum += math.rad(change)
+      if accum < -math.pi / nbAtoms * pos then
+        selectAngle = 2*math.pi / nbAtoms * nbAtomsAvail - math.pi / nbAtoms / 2
+        accum = 0
+      end
     end
-    selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+    if accum == 0 then
+        selectAngle = math.fmod(selectAngle, 2 * math.pi / nbAtoms * nbAtomsAvail)
+    end
     pos = selectAngle // (2 * math.pi / nbAtoms)
     infoWindowText = ATOMS[pos + 1].description
     local pointX = CTR[1] + dstCenter * math.sin(2 * math.pi / nbAtoms * pos)
