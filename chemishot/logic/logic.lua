@@ -16,7 +16,8 @@ local SHOW = 2
 local WHEEL = 3
 local LAUNCH = 4
 local WAIT = 5
-local state = INIT
+local DONE = 6
+local state = INTRO
 local next_state = state
 
 SelectedAtom = 0
@@ -35,6 +36,7 @@ function LogicUpdate()
 
     gfx.sprite.update()
     gfx.drawText('Destroy this tower!', 50, 50)
+    gfx.drawText('Press A once you are ready.', 50,80)
     if pd.buttonJustPressed(pd.kButtonA) then
       next_state = INIT
     end
@@ -72,14 +74,25 @@ function LogicUpdate()
     if #TOWER == 0 then
       gfx.drawText('LEVEL DONE!', 50, 50)
       ATOMS[3]['locked'] = false
-      LVL += 1
-      TOWER = TOWERS[LVL]
+      if LVL == 3 then
+        -- GAME IS DONE
+        next_state = DONE
+      else
+        LVL += 1
+        TOWER = TOWERS[LVL]
+        next_state = SHOW
+      end
       pd.wait(2000)
-      next_state = SHOW
     else
       pd.wait(500)
       next_state = INIT
     end
+  elseif state == DONE then
+    gfx.clear()
+    gfx.drawText('Congratulations, you finished ChemiShot!', 50, 50)
+    gfx.drawText('A game created by', 50, 70)
+    gfx.drawText('FoxYou, Gruvw and Leonardo', 90, 100)
+    gfx.drawText('Thanks for playing!', 50, 150)
   end
 
   state = next_state
