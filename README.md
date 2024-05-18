@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="docs/banner.png" width="500">
+</p>
+
 # ChemiShot
 
 Transform learning chemistry and physics into a fun adventure with Playdate!
+
+<img src="docs/cover.png" width="400">
 
 ChemiShot - Playdate game - EPFL BA6 SHS Video Games / Gamification
 
