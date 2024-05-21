@@ -21,3 +21,7 @@ Dive into the fascinating worlds of **chemistry** and **physics** with **ChemiSh
 Inspired by the popular games **Angry Birds** and **Atomas**, ChemiShot combines the excitement of gaming with enriching scientific learning.
 Take control of **atoms** and **shoot** them precisely to create molecules and destroy atom towers in this addictive game.
 Collect every atom by completing **levels** and unlock new challenges as you progress.
+
+## Music
+
+The music used is "Agent 6", by Trevor Lentz: https://opengameart.org/content/agent-6
